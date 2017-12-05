@@ -35,9 +35,9 @@ pinMode(LEDpin,OUTPUT) ;
 
 void loop()
 {
-  sensorValueL = analogRead(Photo1); // read the values from the photoresistors
-  sensorValueC = analogRead(Photo2);
-  sensorValueR = analogRead(Photo3); // read the value from the sensor
+  sensorValueL = analogRead(Photo1) * 2; // read the values from the photoresistors
+  sensorValueC = analogRead(Photo2) * 2 + 40;
+  sensorValueR = analogRead(Photo3) * 2; // read the value from the sensor
   //distanceValue = analogRead(Dist);
   Serial.print(analogRead(Photo1));
   Serial.print("\t");
