@@ -22,15 +22,13 @@ int lastMove = 2; //1-Left 2-Forward 3-Right 4-Break
 
 void setup()
 {
-Serial.begin(9600);     //Starts reading data from photoresistors
-pinMode(pwm,OUTPUT) ;  //we have to set PWM pin as output
-pinMode(in_1,OUTPUT) ;  //Logic pins are also set as output
-pinMode(in_2,OUTPUT) ;
-pinMode(in_3,OUTPUT) ;
-pinMode(in_4,OUTPUT) ;
-pinMode(LEDpin,OUTPUT) ;
-
-
+  Serial.begin(9600);     //Starts reading data from photoresistors
+  pinMode(pwm,OUTPUT) ;  //we have to set PWM pin as output
+  pinMode(in_1,OUTPUT) ;  //Logic pins are also set as output
+  pinMode(in_2,OUTPUT) ;
+  pinMode(in_3,OUTPUT) ;
+  pinMode(in_4,OUTPUT) ;
+  pinMode(LEDpin,OUTPUT) ;
 }
 
 void loop()
@@ -47,24 +45,34 @@ void loop()
   Serial.println();
   //Serial.println(analogRead(Dist));
 
-  if(sensorValueL < blackThresh || lastMove == 3)
+   if(sensorValueC < blackThresh || lastMove == 2)
   {
-    TurnRight();
-    lastMove = 3;
-  }
-  if(sensorValueR < blackThresh || lastMove == 1)
-  {
-    TurnLeft();
-    lastMove = 1;
-  }
-  if(sensorValueC < blackThresh || lastMove == 2)
-  {
-    Forward();
+    if (lastMove != 2)
+    {
+      Serial.println("Found Line, going forward");
+    }
+    forward();
     lastMove = 2;
+  } else if((sensorValueR < blackThresh && lastMove == 2) || lastMove == 3)
+  {
+    if (lastMove != 3)
+    {
+      Serial.println("Turning Left until line found");
+    }
+    turnRight();
+    lastMove = 3;
+  } else if((sensorValueL < blackThresh && lastMove == 2) || lastMove == 1)
+  {
+    if (lastMove != 1)
+    {
+      Serial.println("Turning Left until line found");
+    }
+    turnLeft();
+    lastMove = 1;
   }
 //  if(distanceValue < distThresh || lastMove == 4)
 //  {
-//    Break();
+//    brake();
 //    lastMove = 4;
 //  }
  }
@@ -83,7 +91,7 @@ void Forward(){
   analogWrite(pwm,100) ;
 }
 
-void Backward(){
+void backward(){
   //For Clock wise motion , in_1 = High , in_2 = Low
   digitalWrite(in_1,LOW) ;
   digitalWrite(in_2,HIGH) ;
@@ -92,7 +100,7 @@ void Backward(){
   analogWrite(pwm,125) ;
 }
 
-void TurnLeft(){
+void turnLeft(){
   digitalWrite(in_1,LOW) ;
   digitalWrite(in_2,HIGH) ;
   digitalWrite(in_3,HIGH) ;
@@ -100,7 +108,7 @@ void TurnLeft(){
   analogWrite(pwm,100) ;
 }
 
-void TurnRight(){
+void turnRight(){
   digitalWrite(in_1,HIGH) ;
   digitalWrite(in_2,LOW) ;
   digitalWrite(in_3,LOW) ;
@@ -108,7 +116,7 @@ void TurnRight(){
   analogWrite(pwm,100) ;
 }
 
-void Break(){
+void brake(){
   digitalWrite(in_1,HIGH) ;
   digitalWrite(in_2,HIGH) ;
   digitalWrite(in_3,HIGH) ;
