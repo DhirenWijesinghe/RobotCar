@@ -13,7 +13,7 @@ int sensorValueL = 0; //Variables for the photoresistor values
 int sensorValueC = 0;
 int sensorValueR = 0;
 //int distanceValue = 0; //Distance sensor variablle value
-int blackThresh = 750;  //Threshold for photoresistors
+int blackThresh = 50;  //Threshold for photoresistors
 //int distThresh = 1.2; //Threshold for distance sensor
 int lastMove = 2; //1-Left 2-Forward 3-Right 4-Break
 
@@ -33,42 +33,55 @@ void setup()
 
 void loop()
 {
-  sensorValueL = .98 * (analogRead(Photo1) - 40); // read the values from the photoresistors
+  sensorValueL = analogRead(Photo1) - 45; // read the values from the photoresistors
   sensorValueC = analogRead(Photo2);
-  sensorValueR = analogRead(Photo3) - 13; // read the value from the sensor
+  sensorValueR = .95 * analogRead(Photo3) - 60; // read the value from the sensor
 //  sensorValueL = analogRead(Photo1) * 2; // read the values from the photoresistors
 //  sensorValueC = analogRead(Photo2) * 2 + 40;
 //  sensorValueR = analogRead(Photo3) * 2; // read the value from the sensor
   //distanceValue = analogRead(Dist);
+  int sum = sensorValueL + sensorValueC + sensorValueR;
+  int smallest = min(sensorValueL, sensorValueC);
+  smallest = min(smallest, sensorValueR);
+  sum = sum - smallest;
+  int averageWhite = sum / 2;
   Serial.print(sensorValueL);
   Serial.print("\t");
   Serial.print(sensorValueC);
   Serial.print("\t");
   Serial.print(sensorValueR);
+  Serial.print("\t");
+  Serial.print(averageWhite);
   Serial.println();
   //Serial.println(analogRead(Dist));
 
-   if(sensorValueC < blackThresh)
+   if(averageWhite - sensorValueC > blackThresh)
   {
     if (lastMove != 2)
     {
       Serial.println("Found Line, going forward");
+    } else {
+      Serial.println("Going Forward");
     }
     forward();
     lastMove = 2;
-  } else if((sensorValueR < blackThresh && lastMove == 2))
+  } else if((averageWhite - sensorValueR > blackThresh && lastMove == 2 || lastMove == 3))
   {
     if (lastMove != 3)
     {
       Serial.println("Turning Left until line found");
+    } else {
+      Serial.println("Going Right");
     }
     turnRight();
     lastMove = 3;
-  } else if((sensorValueL < blackThresh && lastMove == 2))
+  } else if((averageWhite - sensorValueL > blackThresh && lastMove == 2 || lastMove == 1))
   {
     if (lastMove != 1)
     {
       Serial.println("Turning Left until line found");
+    } else {
+      Serial.println("Going Left");
     }
     turnLeft();
     lastMove = 1;
@@ -116,7 +129,7 @@ void turnLeft(){
   digitalWrite(in_2,HIGH) ;
   digitalWrite(in_3,HIGH) ;
   digitalWrite(in_4,LOW) ;
-  analogWrite(pwm,75) ;
+  analogWrite(pwm,50) ;
 }
 
 void turnRight(){
@@ -124,7 +137,7 @@ void turnRight(){
   digitalWrite(in_2,LOW) ;
   digitalWrite(in_3,LOW) ;
   digitalWrite(in_4,HIGH) ;
-  analogWrite(pwm,75) ;
+  analogWrite(pwm,50) ;
 }
 
 void brake(){
