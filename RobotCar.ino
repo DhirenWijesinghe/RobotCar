@@ -13,7 +13,7 @@ int sensorValueL = 0; //Variables for the photoresistor values
 int sensorValueC = 0;
 int sensorValueR = 0;
 //int distanceValue = 0; //Distance sensor variablle value
-int blackThresh = 300;  //Threshold for photoresistors
+int blackThresh = 750;  //Threshold for photoresistors
 //int distThresh = 1.2; //Threshold for distance sensor
 int lastMove = 2; //1-Left 2-Forward 3-Right 4-Break
 
@@ -33,19 +33,22 @@ void setup()
 
 void loop()
 {
-  sensorValueL = analogRead(Photo1) * 2; // read the values from the photoresistors
-  sensorValueC = analogRead(Photo2) * 2 + 40;
-  sensorValueR = analogRead(Photo3) * 2; // read the value from the sensor
+  sensorValueL = .98 * (analogRead(Photo1) - 40); // read the values from the photoresistors
+  sensorValueC = analogRead(Photo2);
+  sensorValueR = analogRead(Photo3) - 13; // read the value from the sensor
+//  sensorValueL = analogRead(Photo1) * 2; // read the values from the photoresistors
+//  sensorValueC = analogRead(Photo2) * 2 + 40;
+//  sensorValueR = analogRead(Photo3) * 2; // read the value from the sensor
   //distanceValue = analogRead(Dist);
-  Serial.print(analogRead(Photo1));
+  Serial.print(sensorValueL);
   Serial.print("\t");
-  Serial.print(analogRead(Photo2));
+  Serial.print(sensorValueC);
   Serial.print("\t");
-  Serial.print(analogRead(Photo3));
+  Serial.print(sensorValueR);
   Serial.println();
   //Serial.println(analogRead(Dist));
 
-   if(sensorValueC < blackThresh || lastMove == 2)
+   if(sensorValueC < blackThresh)
   {
     if (lastMove != 2)
     {
@@ -53,7 +56,7 @@ void loop()
     }
     forward();
     lastMove = 2;
-  } else if((sensorValueR < blackThresh && lastMove == 2) || lastMove == 3)
+  } else if((sensorValueR < blackThresh && lastMove == 2))
   {
     if (lastMove != 3)
     {
@@ -61,7 +64,7 @@ void loop()
     }
     turnRight();
     lastMove = 3;
-  } else if((sensorValueL < blackThresh && lastMove == 2) || lastMove == 1)
+  } else if((sensorValueL < blackThresh && lastMove == 2))
   {
     if (lastMove != 1)
     {
@@ -69,6 +72,14 @@ void loop()
     }
     turnLeft();
     lastMove = 1;
+  } else {
+    if (lastMove == 1) {
+      turnLeft();
+    } else if (lastMove == 2) {
+      forward();
+    } else {
+      turnRight();
+    }
   }
 //  if(distanceValue < distThresh || lastMove == 4)
 //  {
@@ -82,13 +93,13 @@ by chaning pwm input but we are only
 using arduino so we are using higest
 value to driver the motor  */
 
-void Forward(){
+void forward(){
   //For Clock wise motion , in_1 = High , in_2 = Low
   digitalWrite(in_1,HIGH) ;
   digitalWrite(in_2,LOW) ;
   digitalWrite(in_3,HIGH) ;
   digitalWrite(in_4,LOW) ;
-  analogWrite(pwm,100) ;
+  analogWrite(pwm,50) ;
 }
 
 void backward(){
@@ -105,7 +116,7 @@ void turnLeft(){
   digitalWrite(in_2,HIGH) ;
   digitalWrite(in_3,HIGH) ;
   digitalWrite(in_4,LOW) ;
-  analogWrite(pwm,100) ;
+  analogWrite(pwm,75) ;
 }
 
 void turnRight(){
@@ -113,7 +124,7 @@ void turnRight(){
   digitalWrite(in_2,LOW) ;
   digitalWrite(in_3,LOW) ;
   digitalWrite(in_4,HIGH) ;
-  analogWrite(pwm,100) ;
+  analogWrite(pwm,75) ;
 }
 
 void brake(){
